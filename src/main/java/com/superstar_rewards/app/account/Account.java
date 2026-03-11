@@ -53,5 +53,20 @@ public class Account {
 
     @Column(name = "api_key")
     private String apiKey;
+
+    public static Account fromSignupRequest(SignupRequest request, String encodedPassword, String apiKey, LocalDateTime now) {
+        Account account = new Account();
+        account.setFirstName(request.getFirstName());
+        account.setLastName(request.getLastName());
+        account.setEmail(request.getEmail());
+        account.setPhone(request.getPhone());
+        account.setPassword(encodedPassword);
+        account.setApiKey(apiKey);
+        account.setCreatedAt(now);
+        account.setUpdatedAt(now);
+        account.setIsAdmin(request.getIsAdmin() != null ? request.getIsAdmin() : false);
+        account.setIsVerified(false);
+        return account;
+    }
 }
 

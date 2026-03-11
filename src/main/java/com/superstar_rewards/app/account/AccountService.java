@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class AccountService {
 
-    private static final int SESSION_DAYS = 7;
+    private static final int SESSION_DAYS = 1;
 
     private final AccountRepository accountRepository;
     private final SessionRepository sessionRepository;
@@ -32,23 +32,14 @@ public class AccountService {
                 });
 
         LocalDateTime now = LocalDateTime.now();
-
-        Account account = new Account();
-        account.setFirstName(request.getFirstName());
-        account.setLastName(request.getLastName());
-        account.setEmail(request.getEmail());
-        account.setPhone(request.getPhone());
-        account.setPassword(passwordEncoder.encode(request.getPassword()));
-        account.setApiKey(generateApiKey());
-        account.setCreatedAt(now);
-        account.setUpdatedAt(now);
-        account.setIsAdmin(request.getIsAdmin() != null ? request.getIsAdmin() : false);
-        account.setIsVerified(false);
-
+        Account account = Account.fromSignupRequest(
+                request,
+                passwordEncoder.encode(request.getPassword()),
+                generateApiKey(),
+                now
+        );
         Account saved = accountRepository.save(account);
-        AccountResponse response = toResponse(saved);
-        response.setApiKey(saved.getApiKey());
-        return response;
+        return AccountResponse.fromAccountWithApiKey(saved, saved.getApiKey());
     }
 
     public AccountResponse login(LoginRequest request) {
@@ -61,16 +52,10 @@ public class AccountService {
 
         String token = generateSessionToken();
         LocalDateTime now = LocalDateTime.now();
-        Session session = new Session();
-        session.setAccountId(account.getId());
-        session.setToken(token);
-        session.setCreatedAt(now);
-        session.setExpiresAt(now.plusDays(SESSION_DAYS));
+        Session session = Session.create(account.getId(), token, now, now.plusDays(SESSION_DAYS));
         sessionRepository.save(session);
 
-        AccountResponse response = toResponse(account);
-        response.setSessionToken(token);
-        return response;
+        return AccountResponse.fromAccountWithSessionToken(account, token);
     }
 
     private String generateApiKey() {
@@ -81,18 +66,5 @@ public class AccountService {
         return UUID.randomUUID().toString().replace("-", "");
     }
 
-    private AccountResponse toResponse(Account account) {
-        AccountResponse response = new AccountResponse();
-        response.setId(account.getId());
-        response.setFirstName(account.getFirstName());
-        response.setLastName(account.getLastName());
-        response.setEmail(account.getEmail());
-        response.setPhone(account.getPhone());
-        response.setCreatedAt(account.getCreatedAt());
-        response.setUpdatedAt(account.getUpdatedAt());
-        response.setIsAdmin(account.getIsAdmin());
-        response.setIsVerified(account.getIsVerified());
-        return response;
-    }
 }
 

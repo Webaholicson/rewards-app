@@ -34,4 +34,13 @@ public class Session {
 
     @Column(name = "last_used_at")
     private LocalDateTime lastUsedAt;
+
+    public static Session create(Long accountId, String token, LocalDateTime createdAt, LocalDateTime expiresAt) {
+        Session session = new Session();
+        session.setAccountId(accountId);
+        session.setToken(token);
+        session.setCreatedAt(createdAt);
+        session.setExpiresAt(expiresAt);
+        return session;
+    }
 }
