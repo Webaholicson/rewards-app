@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS reward (
     description TEXT         NOT NULL,
     expires_at  TIMESTAMP    NULL DEFAULT NULL,
     created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_reward_account FOREIGN KEY (account_id) REFERENCES account (id) ON DELETE CASCADE,
+    CONSTRAINT fk_reward_account FOREIGN KEY (account_id) REFERENCES account (id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_reward_account_id ON reward (account_id);
